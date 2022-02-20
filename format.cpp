@@ -34,7 +34,7 @@ int main()
     cout << format("Finally we can format strings: {} {}\n", 42, "hello");
     
     // format to output iterators
-    format_to(ostream_iterator<char>{cout, ""}, "Format to cout {}\n", 23);
+    format_to(ostream_iterator<char>{cout, ""}, "Format to cout {:.2f}\n", 23.999);
     
     // format to output iterators with at most N characters
     char someArray[20];
