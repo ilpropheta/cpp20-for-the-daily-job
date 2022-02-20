@@ -74,7 +74,7 @@ int main()
             cout << "[guest] Com'on...cannot resist...\n";
             restRoom.acquire(); // let me use the restroom
             cout << "[guest] Some unrepeatable sounds...\n";
-            this_thread::sleep_for(chrono::milliseconds(20));
+            this_thread::sleep_for(20ms);
             restRoom.release(); // done
             cout << "[guest] left the restroom...\n";
         }};
@@ -83,7 +83,7 @@ int main()
         // ...
         // 
         cout << "[main] cleaning in progress...\n";
-        this_thread::sleep_for(chrono::milliseconds(10));
+        this_thread::sleep_for(10ms);
         
         cout << "[main] ok, the restroom is ready to be used\n";
         restRoom.release();
@@ -96,7 +96,7 @@ int main()
         atomic_flag done;
         
         jthread worker {[&]{
-            this_thread::sleep_for(chrono::milliseconds(20));
+            this_thread::sleep_for(20ms);
             done.test_and_set();
             done.notify_one();
         }};
@@ -104,5 +104,27 @@ int main()
         cout << "waiting...\n";
         done.wait(done.test());
         cout << "done\n";
+   }
+    
+   // atomic_ref
+   {       
+       vector<int> values = {1, 2, 3, 4, 5};
+       
+       auto increment_all = [&] {
+            for (auto& i : values) 
+            {
+                ++atomic_ref{i};
+            }
+       };
+       
+       {
+           jthread t1{increment_all};
+           jthread t2{increment_all};
+           jthread t3{increment_all};
+       }
+       for (auto i : values) 
+       {
+           cout << i << " ";
+       }
    }
 }
