@@ -62,13 +62,6 @@ int main()
     auto twoCannons2 = cannonSpan.subspan<0, 3>(); // try <0, 6>
     cout << "extent of twoCannons2: " << decltype(twoCannons2)::extent << "\n";
     
-    // constexpr subspan(off, count) does compile-time check but the returning extent is still dynamic...
-    static constexpr array crew = { 25, 36, 18, 65 };
-	  constexpr std::span crewSpan = crew;
-    constexpr auto crewSubSpan = crewSpan.subspan(4); // try with 5 or more
-	  cout << "extent of crewSubSpan: " << decltype(crewSubSpan)::extent << "\n";
-    
     // span is a borrowed_range
     cout << "is nassau in top 3 coves? " << ranges::count(span{begin(pirateCoves), 3}, "nassau") << "\n";
 }
- 
