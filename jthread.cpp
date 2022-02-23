@@ -18,7 +18,7 @@ int main()
     // jthread hello world
     {
         jthread t1{[]{
-            cout << "hello jthread\n";
+            cout << "hello jthread\n\n";
         }};
         
         // t1.join() is called in jthread's destructor
@@ -27,13 +27,36 @@ int main()
     // jthread with stop_token and stop_callback
     {    
         jthread t2{[](stop_token st) {        
+            this_thread::sleep_for(1ms);
             stop_callback sc1{st, []{
-                cout << "stop requested 1\n";
+                cout << "stop requested 1. Executed on thread: " << this_thread::get_id() << "\n";;
             }};
             stop_callback sc2{st, []{
-                cout << "stop requested 2\n";
+                cout << "stop requested 2. Executed on thread: " << this_thread::get_id() << "\n";;
             }};
         }};
+        
+        std::cout << "main thread is: " << this_thread::get_id() << "\n";
+        
+        // jthread's destructor calls request_stop() and then join()
+    }
+    
+    cout << "\n";
+    
+    // jthread with stop_token and stop_callback - stop_callbacks *probably* executed on main thread
+    {    
+        jthread t2{[](stop_token st) {                    
+            stop_callback sc1{st, []{
+                cout << "another stop requested 1. Executed on thread: " << this_thread::get_id() << "\n";;
+            }};
+            stop_callback sc2{st, []{
+                cout << "another stop requested 2. Executed on thread: " << this_thread::get_id() << "\n";;
+            }};
+            this_thread::sleep_for(5ms);            
+        }};
+        
+        this_thread::sleep_for(2ms);
+        std::cout << "main thread is: " << this_thread::get_id() << "\n";
         
         // jthread's destructor calls request_stop() and then join()
     }
@@ -49,7 +72,7 @@ int main()
                 cout << "probably, I won't be called 2\n";
             }};
         }};
-        this_thread::sleep_for(100ms);        
+        this_thread::sleep_for(10ms);
     }
      
     // here we just pass our own stop_token to a bunch of jthreads
@@ -73,7 +96,7 @@ int main()
         
         this_thread::sleep_for(100ms);
         cout << "stopping workers...\n";
-        src.request_stop();        
+        src.request_stop();
     }
     
     // what's the difference between the above and this below?
@@ -109,7 +132,7 @@ int main()
                 sent = true;
                 std::cout << "PING sent...\n";
             }
-            cv.notify_one();              
+            cv.notify_one();
         }};
         
         jthread pong { [&](stop_token st){
