@@ -18,16 +18,18 @@ int main()
     // jthread hello world
     {
         jthread t1{[]{
-            cout << "hello jthread\n\n";
+            cout << "1. hello jthread\n\n";
         }};
         
         // t1.join() is called in jthread's destructor
     }
     
     // jthread with stop_token and stop_callback
+    // here, main should be faster than t2 (we expect both stop_callbacks will be called from t2)
     {    
         jthread t2{[](stop_token st) {        
             this_thread::sleep_for(1ms);
+            cout << "jthread is: " << this_thread::get_id() << "\n";;
             stop_callback sc1{st, []{
                 cout << "stop requested 1. Executed on thread: " << this_thread::get_id() << "\n";;
             }};
@@ -36,14 +38,15 @@ int main()
             }};
         }};
         
-        std::cout << "main thread is: " << this_thread::get_id() << "\n";
+        std::cout << "2. main thread is: " << this_thread::get_id() << "\n";
         
         // jthread's destructor calls request_stop() and then join()
     }
     
     cout << "\n";
     
-    // jthread with stop_token and stop_callback - stop_callbacks *probably* executed on main thread
+    // jthread with stop_token and stop_callback
+    // here, t2 should be faster than main thread (we expect both stop_callbacks will be called from main)
     {    
         jthread t2{[](stop_token st) {                    
             stop_callback sc1{st, []{
@@ -56,7 +59,7 @@ int main()
         }};
         
         this_thread::sleep_for(2ms);
-        std::cout << "main thread is: " << this_thread::get_id() << "\n";
+        std::cout << "3. main thread is: " << this_thread::get_id() << "\n";
         
         // jthread's destructor calls request_stop() and then join()
     }
@@ -73,6 +76,7 @@ int main()
             }};
         }};
         this_thread::sleep_for(10ms);
+        cout << "\n4. hey, I am done...\n";
     }
      
     // here we just pass our own stop_token to a bunch of jthreads
@@ -95,13 +99,13 @@ int main()
         }
         
         this_thread::sleep_for(100ms);
-        cout << "stopping workers...\n";
-        src.request_stop();
+        cout << "5. stopping workers...\n";
+        src.request_stop();        
     }
     
     // what's the difference between the above and this below?
     {
-        cout << "\n";
+        cout << "\n6.\n";
         vector<jthread> workers;
         for (auto i=0; i<5; ++i)
         {
@@ -120,7 +124,7 @@ int main()
     
     // using condition_variable_any with stop_token
     {
-        cout << "\n";
+        cout << "\n7.\n";
         condition_variable_any cv;
         mutex m;
         bool sent = false;
@@ -132,7 +136,7 @@ int main()
                 sent = true;
                 std::cout << "PING sent...\n";
             }
-            cv.notify_one();
+            cv.notify_one();              
         }};
         
         jthread pong { [&](stop_token st){
