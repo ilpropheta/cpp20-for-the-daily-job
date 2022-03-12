@@ -32,7 +32,7 @@ int main()
 {
     Person p1 {.name="marco", .code=10, .flag=true}; // ok
     Person p2 {.name="marco", .flag=false}; // ok, code=0
-    Person p3 {.name="marco", .code=10}; // nope (out of order)
+    //Person p3 {.name="marco", .flag=false, .code=10}; // nope (out of order)
     Person p4 {.name="marco" }; // ok, code=0, flag=true
     
     // explicit nesting
